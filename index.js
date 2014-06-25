@@ -3,6 +3,7 @@
 	Author Tobias Koppers @sokra
 */
 var loaderUtils = require("loader-utils");
+var urlPath = require('url');
 module.exports = function(content) {
 	this.cacheable && this.cacheable();
 	if(!this.emitFile) throw new Error("emitFile is required from module system");
@@ -20,6 +21,7 @@ module.exports = function(content) {
 				else postfix = "";
 			} else postfix = "";
 		}
+		var cdn = query.cdn || "";
 		var digest = query.hash || "md5";
 		var digestSize = query.size || 9999;
 		hash = new (require("crypto").Hash)(digest);
@@ -28,6 +30,9 @@ module.exports = function(content) {
 		url = prefix + hash + postfix;
 	}
 	this.emitFile(url, content);
+	if (cdn.length !== 0) {
+		url = urlPath.resolve(cdn, url);
+	}
 	return "module.exports = __webpack_public_path__ + " + JSON.stringify(url);
 }
 module.exports.raw = true;
